@@ -28,6 +28,7 @@ class Jupyter:
     @classmethod
     def local(cls, env: Union[str, None] = None):
         """Launch a local Jupyter environment."""
+
         if env:
             if os.path.isdir(env):
                 raise ValueError(
@@ -55,7 +56,7 @@ class Jupyter:
         km.start_kernel()
         kc = km.client()
         kc.start_channels()
-        
+
         return cls(km, kc)
 
     def stream_cell(self, code: str):
@@ -89,7 +90,11 @@ class Jupyter:
 
                 if msg["header"]["msg_type"] == "stream":
                     message_queue.put(
-                        {"type": "console", "format": "output", "content": content["text"]}
+                        {
+                            "type": "console",
+                            "format": "output",
+                            "content": content["text"],
+                        }
                     )
                 elif msg["header"]["msg_type"] == "error":
                     content = "\n".join(content["traceback"])
@@ -174,4 +179,3 @@ class Jupyter:
         self.stop_execution()
         self.kc.stop_channels()
         self.km.shutdown_kernel()
-
