@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# playground
+
+examples/playground/
+
 # Distribution / packaging
 .Python
 build/
