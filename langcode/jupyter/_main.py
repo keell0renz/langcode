@@ -12,6 +12,7 @@ os.environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
 
 
 class Jupyter:
+    """A stateful Jupyter notebook for Python code execution."""
 
     def __init__(self, km: KernelManager, kc: BlockingKernelClient):
         self.km = km
@@ -57,7 +58,9 @@ class Jupyter:
         
         return cls(km, kc)
 
-    def run(self, code: str):
+    def stream_cell(self, code: str):
+        """Run the cell and yield output including text, images, etc."""
+
         self.finish_flag = False
 
         while not self.kc.is_alive():
@@ -156,15 +159,19 @@ class Jupyter:
             except queue.Empty:
                 continue
 
-    def stop(self):
+    def stop_execution(self):
+        """Stops the current running execution process."""
+
         self.finish_flag = True
         if self.listener_thread is None:
             return
         if self.listener_thread.is_alive():
             self.listener_thread.join()
 
-    def terminate(self):
-        self.stop()
+    def close(self):
+        """Closes the Jupyter notebook and shutdowns the kernel."""
+
+        self.stop_execution()
         self.kc.stop_channels()
         self.km.shutdown_kernel()
 
