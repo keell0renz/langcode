@@ -66,3 +66,5 @@ jupyter = Jupyter.from_remote(
 ```txt
 root@linux# langcode run jupyter --host localhost:8888 --env ~/.../.../python3 --cwd ~/.../.../ --vars ./env.local
 ```
+
+Got inspired and borrowed the code from [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) and [E2B Code Interpreter](https://github.com/e2b-dev/code-interpreter)
