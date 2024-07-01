@@ -64,7 +64,7 @@ class Jupyter:
 
         self.finish_flag = False
 
-        message_queue = queue.Queue()
+        message_queue: queue.Queue = queue.Queue()
 
         self._execute_code(code, message_queue, timeout)
 
