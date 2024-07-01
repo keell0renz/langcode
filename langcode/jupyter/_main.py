@@ -64,9 +64,6 @@ class Jupyter:
 
         self.finish_flag = False
 
-        while not self.kc.is_alive():
-            time.sleep(0.1)
-
         message_queue = queue.Queue()
 
         self._execute_code(code, message_queue, timeout)
