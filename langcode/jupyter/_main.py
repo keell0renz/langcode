@@ -18,9 +18,7 @@ class Jupyter:
         self.km = km
         self.kc = kc
 
-        while not self.kc.is_alive():
-            time.sleep(0.1)
-        time.sleep(0.5)
+        self.kc.wait_for_ready()
 
         self.listener_thread: Union[threading.Thread, None] = None
         self.finish_flag = False
@@ -59,8 +57,10 @@ class Jupyter:
 
         return cls(km, kc)
 
-    def stream_cell(self, code: str):
+    def stream_cell(self, code: str, timeout: Union[int, None] = None):
         """Run the cell and yield output including text, images, etc."""
+
+        self.kc.wait_for_ready()
 
         self.finish_flag = False
 
@@ -68,23 +68,43 @@ class Jupyter:
             time.sleep(0.1)
 
         message_queue = queue.Queue()
-        self._execute_code(code, message_queue)
+
+        self._execute_code(code, message_queue, timeout)
+
         return self._capture_output(message_queue)
-    
-    def run_cell(self, code: str):
+
+    def run_cell(self, code: str, timeout: Union[int, None] = None):
         """Run the cell and output final code result."""
 
+        self.kc.wait_for_ready()
+
         output = ""
-        for chunk in self.stream_cell(code):
+        for chunk in self.stream_cell(code, timeout):
             if chunk["type"] == "console" and chunk["format"] == "output":
                 output += chunk["content"]
-                
+            elif chunk["type"] == "timeout":
+                raise TimeoutError("Timeout has passed!")
+
         return output
 
-    def _execute_code(self, code, message_queue):
+    def _execute_code(self, code, message_queue, timeout):
         def iopub_message_listener():
+            start_time = time.time()
+
             while not self.finish_flag or not message_queue.empty():
                 try:
+                    if timeout is not None and (time.time() - start_time) * 1000 >= timeout:
+                        message_queue.put(
+                            {
+                                "type": "timeout",
+                                "format": "signal",
+                                "content": "Timeout has passed!"
+                            }
+                        )
+                        self.finish_flag = True
+                        self.km.interrupt_kernel()
+                        break
+
                     msg = self.kc.iopub_channel.get_msg(timeout=0.1)
                 except queue.Empty:
                     continue
@@ -181,6 +201,7 @@ class Jupyter:
         if self.listener_thread is None:
             return
         if self.listener_thread.is_alive():
+            self.km.interrupt_kernel()
             self.listener_thread.join()
 
     def close(self):
