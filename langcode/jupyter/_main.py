@@ -70,6 +70,16 @@ class Jupyter:
         message_queue = queue.Queue()
         self._execute_code(code, message_queue)
         return self._capture_output(message_queue)
+    
+    def run_cell(self, code: str):
+        """Run the cell and output final code result."""
+
+        output = ""
+        for chunk in self.stream_cell(code):
+            if chunk["type"] == "console" and chunk["format"] == "output":
+                output += chunk["content"]
+                
+        return output
 
     def _execute_code(self, code, message_queue):
         def iopub_message_listener():
