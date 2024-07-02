@@ -30,6 +30,20 @@ for event in jupyter.stream_cell(code="...", timeout=...):
 jupyter.close()
 ```
 
+```python
+class ExecutionEvent:
+    msg_type: Literal["stream, error, display_data, execute_result"]
+    content_type: Literal["console", "image", "code"]
+    content_format: Literal["output", "base64.png", "base64.jpeg", "html", "javascript"]
+    content: str
+
+class ExecutionResult:
+    events: List[ExecutionEvent]
+    error: bool
+    timeout: bool
+    text: str
+```
+
 Remote connections coming soon...
 
 ```python
