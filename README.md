@@ -2,6 +2,10 @@
 
 ## Concept
 
+Currently it is in the prototype stage, and below you can see the vision for this project.
+
+Now you can experiment with LangCode locally in a basic way.
+
 ### Jupyter Interface
 
 #### Local Jupyter Notebook
