@@ -12,15 +12,10 @@ Now you can experiment with LangCode locally in a basic way.
 from langcode.jupyter import Jupyter
 
 jupyter = Jupyter.local(
-    cwd="./",
     env="...",
     timeout=None,
     event_handler: lambda x: process_execution_event(x)
 )
-
-jupyter.cwd("./../../")
-
-jupyter.environ["..."] = "..."
 
 result: ExecutionResult = jupyter.run_cell(code="...", timeout=...)
 
