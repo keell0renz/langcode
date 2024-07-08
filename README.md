@@ -22,9 +22,9 @@ jupyter = Jupyter.local(
     event_handler: lambda x: process_execution_event(x) # Pass event handler if you need.
 )
 
-result: ExecutionResult = jupyter.run_cell(code="x = 10; x", timeout=None) # Final result
+result: ExecutionResult = jupyter.run_cell(code="x = 10; x", timeout=None) # Final result.
 
-for event in jupyter.stream_cell(code="import time; time.sleep(5)", timeout=1000): # Or stream events in real time
+for event in jupyter.stream_cell(code="import time; time.sleep(5)", timeout=1000): # Or stream events in real time.
     event: ExecutionEvent
 
     # This will raise TimeoutError after 1 second.
