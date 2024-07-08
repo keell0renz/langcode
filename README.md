@@ -32,6 +32,36 @@ for event in jupyter.stream_cell(code="import time; time.sleep(5)", timeout=1000
 jupyter.close() # Close the notebook and Jupyter kernel.
 ```
 
+You can also get images outputted by Jupyter kernel:
+
+```python
+code = """
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 2 * np.pi, 200)
+y = np.sin(x)
+
+fig, ax = plt.subplots()
+ax.plot(x, y)
+ax.set(xlabel='x', ylabel='sin(x)',
+       title='A simple plot')
+
+plt.show()
+
+"""
+
+result = jupyter.run_cell(code)
+
+result.images
+```
+
+```txt
+[ImageString(content_format='base64.png', content='iVBORw0KGg...')]
+```
+
+You can also get images in `ExecutionEvent` data transfer object when you use `stream_cell`.
+
 Also you can stop the execution in the process if you need:
 
 ```python
