@@ -4,6 +4,8 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/keell0renz/langcode"
 
 [tool.poetry.dependencies]
 python = "^3.11"
