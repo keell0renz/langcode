@@ -32,6 +32,8 @@ class LocalJupyter(Jupyter):
             event_handler
         )
 
+        self.closed = False
+
         if env:
             if os.path.isdir(env):
                 raise ValueError(
@@ -72,6 +74,9 @@ class LocalJupyter(Jupyter):
     ) -> Generator[ExecutionEvent, None, None]:
         """Run the cell and yield output including text, images, etc."""
 
+        if self.closed:
+            raise RuntimeError("The Jupyter code interpreter has been closed! Instantiate a new one!")
+
         self.kc.wait_for_ready()
 
         self.finish_flag = False
@@ -87,7 +92,10 @@ class LocalJupyter(Jupyter):
     def run_cell(self, code: str, timeout: Union[int, None] = None) -> ExecutionResult:
         """Run the cell and output final code result."""
 
-        self.kc.wait_for_ready()
+        if self.closed:
+            raise RuntimeError("The Jupyter code interpreter has been closed! Instantiate a new one!")
+
+        # self.kc.wait_for_ready()
 
         text = ""
 
@@ -263,6 +271,8 @@ class LocalJupyter(Jupyter):
 
     def close(self):
         """Closes the Jupyter notebook and shutdowns the kernel."""
+
+        self.closed = True
 
         self.stop_execution()
         self.kc.stop_channels()
