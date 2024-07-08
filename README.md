@@ -56,7 +56,7 @@ result = jupyter.run_cell(code)
 result.images
 ```
 
-```txt
+```python
 [ImageString(content_format='base64.png', content='iVBORw0KGg...')]
 ```
 
