@@ -37,9 +37,6 @@ class ExecutionResult:
     error: bool
     """Signals whether an error has occured during execution, `True` if error occured."""
 
-    timeout: bool
-    """Signals whether timeout error has occured during execution, `True` if timeout error occured."""
-
     text: str
     """Final text, excluding images, which can be injected into LLM."""
 

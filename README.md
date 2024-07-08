@@ -35,7 +35,6 @@ class ExecutionEvent:
 class ExecutionResult:
     events: List[ExecutionEvent]
     error: bool
-    timeout: bool
     text: str
 ```
 

@@ -1,8 +1,13 @@
 from jupyter_client.manager import KernelManager
 
-from langcode.jupyter._protocol import Jupyter, ExecutionEvent
+from langcode.jupyter._protocol import (
+    Jupyter,
+    ExecutionEvent,
+    ExecutionResult,
+    ImageString,
+)
 
-from typing import Union, Callable
+from typing import Union, Callable, Generator, List
 import threading
 import queue
 import time
@@ -23,7 +28,9 @@ class LocalJupyter(Jupyter):
     ):
 
         self.timeout: Union[int, None] = timeout
-        self.event_handler: Union[Callable[[ExecutionEvent], None], None] = event_handler
+        self.event_handler: Union[Callable[[ExecutionEvent], None], None] = (
+            event_handler
+        )
 
         if env:
             if os.path.isdir(env):
@@ -60,32 +67,57 @@ class LocalJupyter(Jupyter):
         self.listener_thread: Union[threading.Thread, None] = None
         self.finish_flag = False
 
-    def stream_cell(self, code: str, timeout: Union[int, None] = None):
+    def stream_cell(
+        self, code: str, timeout: Union[int, None] = None
+    ) -> Generator[ExecutionEvent, None, None]:
         """Run the cell and yield output including text, images, etc."""
 
         self.kc.wait_for_ready()
 
         self.finish_flag = False
 
-        message_queue: queue.Queue = queue.Queue()
+        message_queue: queue.Queue[dict] = queue.Queue()
+
+        timeout = self.timeout if timeout is None else timeout
 
         self._execute_code(code, message_queue, timeout)
 
         return self._capture_output(message_queue)
 
-    def run_cell(self, code: str, timeout: Union[int, None] = None):
+    def run_cell(self, code: str, timeout: Union[int, None] = None) -> ExecutionResult:
         """Run the cell and output final code result."""
 
         self.kc.wait_for_ready()
 
-        output = ""
-        for chunk in self.stream_cell(code, timeout):
-            if chunk["type"] == "console" and chunk["format"] == "output":
-                output += chunk["content"]
-            elif chunk["type"] == "timeout":
-                raise TimeoutError("Timeout has passed!")
+        text = ""
 
-        return output
+        events: List[ExecutionEvent] = []
+
+        error = False
+
+        images: List[ImageString] = []
+
+        for event in self.stream_cell(code, timeout):
+            event: ExecutionEvent
+
+            events.append(event)
+
+            if event.content_type == "image" and event.content_format in [
+                "base64.png",
+                "base64.jpeg",
+            ]:
+                images.append(
+                    ImageString(
+                        content_format=event.content_format, content=event.content # type: ignore
+                    )
+                )
+            else:
+                text += event.content
+
+            if event.msg_type == "error":
+                error = True
+
+        return ExecutionResult(events, error, text, images)
 
     def _execute_code(self, code, message_queue, timeout):
         def iopub_message_listener():
@@ -93,14 +125,11 @@ class LocalJupyter(Jupyter):
 
             while not self.finish_flag or not message_queue.empty():
                 try:
-                    if timeout is not None and (time.time() - start_time) * 1000 >= timeout:
-                        message_queue.put(
-                            {
-                                "type": "timeout",
-                                "format": "signal",
-                                "content": "Timeout has passed!"
-                            }
-                        )
+                    if (
+                        timeout is not None
+                        and (time.time() - start_time) * 1000 >= timeout
+                    ):
+                        message_queue.put({"signal": "timeout"})
                         self.finish_flag = True
                         self.km.interrupt_kernel()
                         break
@@ -121,8 +150,10 @@ class LocalJupyter(Jupyter):
                 if msg["header"]["msg_type"] == "stream":
                     message_queue.put(
                         {
-                            "type": "console",
-                            "format": "output",
+                            "signal": None,
+                            "msg_type": "stream",
+                            "content_type": "console",
+                            "content_format": "output",
                             "content": content["text"],
                         }
                     )
@@ -133,8 +164,10 @@ class LocalJupyter(Jupyter):
                     content = ansi_escape.sub("", content)
                     message_queue.put(
                         {
-                            "type": "console",
-                            "format": "output",
+                            "signal": None,
+                            "msg_type": "error",
+                            "content_type": "console",
+                            "content_format": "output",
                             "content": content,
                         }
                     )
@@ -143,40 +176,50 @@ class LocalJupyter(Jupyter):
                     if "image/png" in data:
                         message_queue.put(
                             {
-                                "type": "image",
-                                "format": "base64.png",
+                                "signal": None,
+                                "msg_type": msg["header"]["msg_type"],
+                                "content_type": "image",
+                                "content_format": "base64.png",
                                 "content": data["image/png"],
                             }
                         )
                     elif "image/jpeg" in data:
                         message_queue.put(
                             {
-                                "type": "image",
-                                "format": "base64.jpeg",
+                                "signal": None,
+                                "msg_type": msg["header"]["msg_type"],
+                                "content_type": "image",
+                                "content_format": "base64.jpeg",
                                 "content": data["image/jpeg"],
                             }
                         )
                     elif "text/html" in data:
                         message_queue.put(
                             {
-                                "type": "code",
-                                "format": "html",
+                                "signal": None,
+                                "msg_type": msg["header"]["msg_type"],
+                                "content_type": "code",
+                                "content_format": "html",
                                 "content": data["text/html"],
                             }
                         )
                     elif "text/plain" in data:
                         message_queue.put(
                             {
-                                "type": "console",
-                                "format": "output",
+                                "signal": None,
+                                "msg_type": msg["header"]["msg_type"],
+                                "content_type": "console",
+                                "content_format": "output",
                                 "content": data["text/plain"],
                             }
                         )
                     elif "application/javascript" in data:
                         message_queue.put(
                             {
-                                "type": "code",
-                                "format": "javascript",
+                                "signal": None,
+                                "msg_type": msg["header"]["msg_type"],
+                                "content_type": "code",
+                                "content_format": "javascript",
                                 "content": data["application/javascript"],
                             }
                         )
@@ -186,11 +229,25 @@ class LocalJupyter(Jupyter):
 
         self.kc.execute(code, stop_on_error=True)
 
-    def _capture_output(self, message_queue):
+    def _capture_output(self, message_queue) -> Generator[ExecutionEvent, None, None]:
         while not self.finish_flag or not message_queue.empty():
             try:
                 msg = message_queue.get(timeout=0.1)
-                yield msg
+
+                if msg["signal"] == "timeout":
+                    raise TimeoutError("Timeout has elapsed during code execution!")
+
+                event = ExecutionEvent(
+                    msg_type=msg["msg_type"],
+                    content_type=msg["content_type"],
+                    content_format=msg["content_format"],
+                    content=msg["content"],
+                )
+
+                if self.event_handler is not None:
+                    self.event_handler(event)
+
+                yield event
             except queue.Empty:
                 continue
 
