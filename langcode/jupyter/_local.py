@@ -39,6 +39,10 @@ class LocalJupyter(Jupyter):
                 raise ValueError(
                     f"The env path '{env}' is a directory, not a Python executable."
                 )
+            if not os.path.isfile(env) or not os.access(env, os.X_OK):
+                raise ValueError(
+                    f"The env path '{env}' is not a valid Python executable."
+                )
             python_executable_path = env
         else:
             python_executable_path = "python3"  # Default to system Python
