@@ -8,7 +8,9 @@
 
 ### Example
 
-`Warning: Currently it is not published in PyPi, so please download the repository and connect to the environment.`
+```bash
+pip install langcode
+```
 
 ```python
 from langcode.jupyter import Jupyter, ExecutionEvent, ExecutionResult

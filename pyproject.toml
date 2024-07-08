@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langcode"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
@@ -14,7 +14,6 @@ python = "^3.11"
 jupyter-client = "^8.6.2"
 jupyter = "^1.0.0"
 ipykernel = "^6.29.4"
-matplotlib = "^3.9.1"
 
 
 [build-system]
