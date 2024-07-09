@@ -110,8 +110,6 @@ class LocalJupyter(Jupyter):
         images: List[ImageString] = []
 
         for event in self.stream_cell(code, timeout):
-            event: ExecutionEvent
-
             events.append(event)
 
             if event.content_type == "image" and event.content_format in [
