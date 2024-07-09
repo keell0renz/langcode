@@ -12,7 +12,7 @@
 pip install langcode
 ```
 
-`INTERESTING`: You can find `claude_agent.ipynb` in `examples` which demonstrates real-world application of LangCode using Claude 3.5 Sonnet
+`INTERESTING`: You can find `claude_agent.ipynb` in `examples` which demonstrates a real-world application of LangCode using Claude 3.5 Sonnet
 
 ```python
 from langcode.jupyter import Jupyter, ExecutionEvent, ExecutionResult
