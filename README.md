@@ -33,6 +33,8 @@ for event in jupyter.stream_cell(code="import time; time.sleep(5)", timeout=1000
 
     # This will raise TimeoutError after 1 second.
 
+jupyter.restart() # You can also restart kernel to clear the cell state.
+
 jupyter.close() # Close the notebook and Jupyter kernel.
 ```
 
