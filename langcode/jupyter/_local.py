@@ -79,7 +79,9 @@ class LocalJupyter(Jupyter):
         """Run the cell and yield output including text, images, etc."""
 
         if self.closed:
-            raise RuntimeError("The Jupyter code interpreter has been closed! Instantiate a new one!")
+            raise RuntimeError(
+                "The Jupyter code interpreter has been closed! Instantiate a new one!"
+            )
 
         self.kc.wait_for_ready()
 
@@ -97,7 +99,9 @@ class LocalJupyter(Jupyter):
         """Run the cell and output final code result."""
 
         if self.closed:
-            raise RuntimeError("The Jupyter code interpreter has been closed! Instantiate a new one!")
+            raise RuntimeError(
+                "The Jupyter code interpreter has been closed! Instantiate a new one!"
+            )
 
         # self.kc.wait_for_ready()
 
@@ -118,7 +122,7 @@ class LocalJupyter(Jupyter):
             ]:
                 images.append(
                     ImageString(
-                        content_format=event.content_format, content=event.content # type: ignore
+                        content_format=event.content_format, content=event.content  # type: ignore
                     )
                 )
             else:
@@ -270,6 +274,18 @@ class LocalJupyter(Jupyter):
         if self.listener_thread.is_alive():
             self.km.interrupt_kernel()
             self.listener_thread.join()
+
+    def restart(self):
+        """Clears the cell state by restarting the kernel."""
+
+        if self.closed:
+            raise RuntimeError(
+                "The Jupyter code interpreter has been closed! Instantiate a new one!"
+            )
+
+        self.stop_execution()
+        self.km.restart_kernel(now=True)
+        self.kc.wait_for_ready()
 
     def close(self):
         """Closes the Jupyter notebook and shutdowns the kernel."""

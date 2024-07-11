@@ -5,6 +5,7 @@ Defines a protocol interface for Jupyter code interpreter API.
 from typing import Protocol, Literal, List, Union, Generator
 from dataclasses import dataclass
 
+
 @dataclass
 class ExecutionEvent:
     """
@@ -41,7 +42,7 @@ class ExecutionResult:
     """Final text, excluding images, which can be injected into LLM."""
 
     images: List[ImageString]
-    """Final list of `base64` images outputted during execution, can be injected into LLM.""" 
+    """Final list of `base64` images outputted during execution, can be injected into LLM."""
 
 
 class Jupyter(Protocol):
@@ -49,13 +50,18 @@ class Jupyter(Protocol):
     Protocol describing Jupyter code interpreter class.
     """
 
-    def stream_cell(self, code: str, timeout: Union[int, None] = None) -> Generator[ExecutionEvent, None, None]:
+    def stream_cell(
+        self, code: str, timeout: Union[int, None] = None
+    ) -> Generator[ExecutionEvent, None, None]:
         raise NotImplementedError()
 
     def run_cell(self, code: str, timeout: Union[int, None] = None) -> ExecutionResult:
         raise NotImplementedError()
 
     def stop_execution(self) -> None:
+        raise NotImplementedError()
+
+    def restart(self) -> None:
         raise NotImplementedError()
 
     def close(self) -> None:
