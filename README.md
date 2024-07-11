@@ -63,7 +63,7 @@ result.images
 ```
 
 ```python
-[ImageString(content_format='base64.png', content='iVBORw0KGg...')]
+[Base64ImageString(content_format='png', content='iVBORw0KGg...')]
 ```
 
 You can also get images in `ExecutionEvent` data transfer object when you use `stream_cell`.
@@ -90,10 +90,10 @@ class ExecutionEvent:
 
 
 @dataclass
-class ImageString:
+class Base64ImageString:
     """Represents an image in `base64` form, either `png` or `jpeg`."""
 
-    content_format: Literal["base64.png", "base64.jpeg"]
+    content_format: Literal["png", "jpeg"]
     content: str
 
 

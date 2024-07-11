@@ -19,10 +19,10 @@ class ExecutionEvent:
 
 
 @dataclass
-class ImageString:
+class Base64ImageString:
     """Represents an image in `base64` form, either `png` or `jpeg`."""
 
-    content_format: Literal["base64.png", "base64.jpeg"]
+    content_format: Literal["png", "jpeg"]
     content: str
 
 
@@ -41,7 +41,7 @@ class ExecutionResult:
     text: str
     """Final text, excluding images, which can be injected into LLM."""
 
-    images: List[ImageString]
+    images: List[Base64ImageString]
     """Final list of `base64` images outputted during execution, can be injected into LLM."""
 
 

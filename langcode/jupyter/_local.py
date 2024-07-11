@@ -4,7 +4,7 @@ from langcode.jupyter._protocol import (
     Jupyter,
     ExecutionEvent,
     ExecutionResult,
-    ImageString,
+    Base64ImageString,
 )
 
 from typing import Union, Callable, Generator, List
@@ -111,7 +111,7 @@ class LocalJupyter(Jupyter):
 
         error = False
 
-        images: List[ImageString] = []
+        images: List[Base64ImageString] = []
 
         for event in self.stream_cell(code, timeout):
             events.append(event)
@@ -121,8 +121,9 @@ class LocalJupyter(Jupyter):
                 "base64.jpeg",
             ]:
                 images.append(
-                    ImageString(
-                        content_format=event.content_format, content=event.content  # type: ignore
+                    Base64ImageString(
+                        content_format="jpeg" if event.content_format == "base64.jpeg" else "png",
+                        content=event.content  # type: ignore
                     )
                 )
             else:
