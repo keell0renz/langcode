@@ -117,12 +117,12 @@ class LocalJupyter(Jupyter):
             events.append(event)
 
             if event.content_type == "image" and event.content_format in [
-                "base64.png",
-                "base64.jpeg",
+                "base64/png",
+                "base64/jpeg",
             ]:
                 images.append(
                     Base64ImageString(
-                        content_format="jpeg" if event.content_format == "base64.jpeg" else "png",
+                        content_format="jpeg" if event.content_format == "base64/jpeg" else "png",
                         content=event.content  # type: ignore
                     )
                 )
@@ -194,7 +194,7 @@ class LocalJupyter(Jupyter):
                                 "signal": None,
                                 "msg_type": msg["header"]["msg_type"],
                                 "content_type": "image",
-                                "content_format": "base64.png",
+                                "content_format": "base64/png",
                                 "content": data["image/png"],
                             }
                         )
@@ -204,7 +204,7 @@ class LocalJupyter(Jupyter):
                                 "signal": None,
                                 "msg_type": msg["header"]["msg_type"],
                                 "content_type": "image",
-                                "content_format": "base64.jpeg",
+                                "content_format": "base64/jpeg",
                                 "content": data["image/jpeg"],
                             }
                         )

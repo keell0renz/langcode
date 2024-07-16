@@ -16,5 +16,5 @@ class Jupyter(_Jupyter):
         env: Union[str, None] = None,
         timeout: Union[int, None] = None,
         event_handler: Union[Callable[[ExecutionEvent], None], None] = None,
-    ):
-        return LocalJupyter(env, timeout, event_handler)
+    ) -> "Jupyter":
+        return LocalJupyter(env, timeout, event_handler) # type: ignore
