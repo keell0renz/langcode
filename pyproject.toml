@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langcode"
-version = "0.1.5"
+version = "0.1.6"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ repository = "https://github.com/keell0renz/langcode"
 documentation = "https://github.com/keell0renz/langcode"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.7,<4.0"
 jupyter-client = "^8.6.2"
 jupyter = "^1.0.0"
 ipykernel = "^6.29.4"
