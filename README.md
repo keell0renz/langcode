@@ -85,7 +85,7 @@ class ExecutionEvent:
 
     msg_type: Literal["stream", "error", "display_data", "execute_result"]
     content_type: Literal["console", "image", "code"]
-    content_format: Literal["output", "base64.png", "base64.jpeg", "html", "javascript"]
+    content_format: Literal["output", "base64/png", "base64/jpeg", "html", "javascript"]
     content: str
 
 
